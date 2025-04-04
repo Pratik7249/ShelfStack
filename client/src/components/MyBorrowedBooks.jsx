@@ -86,10 +86,10 @@ const MyBorrowedBooks = () => {
                     <td className="px-4 py-2 text-center">
                       {book.returned ? "Returned" : "Not Returned"}
                     </td>
-                    <td className="px-4 py-2 text-center">
+                    <td className="px-4 py-2 text-center flex justify-center items-center">
                       <BookA 
                         onClick={() => openReadPopup(book)} 
-                        className="cursor-pointer text-blue-600" 
+                        className="cursor-pointer text-black-600" 
                       />
                     </td>
                   </tr>
