@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllBorrowedBooks, resetBorrowSlice } from "../store/slices/borrowSlice";
+import { fetchAllBorrowedBooks, returnBorrowedBook, resetBorrowSlice } from "../store/slices/borrowSlice";
 import { toast } from "react-toastify";
 import { fetchAllBooks } from "../store/slices/bookSlice";
 import Header from "../layout/Header";
@@ -30,17 +30,20 @@ const Catalog = () => {
   const formatDate = (timestamp) => new Date(timestamp).toLocaleDateString();
   const currentDate = new Date();
 
-  const borrowedBooksList = borrowedBooks?.filter((book) => {
-    const dueDate = new Date(book.dueDate);
-    return dueDate > currentDate;
-  });
+  const borrowedBooksList = borrowedBooks?.map((book) => ({
+    ...book,
+    status: new Date(book.dueDate) > currentDate ? "Borrowed" : "Overdue",
+  }));
 
-  const overdueBooks = borrowedBooks?.filter((book) => {
-    const dueDate = new Date(book.dueDate);
-    return dueDate <= currentDate;
-  });
+  const booksToDisplay = filter === "borrowed"
+    ? borrowedBooksList.filter(book => book.status === "Borrowed")
+    : borrowedBooksList.filter(book => book.status === "Overdue");
 
-  const booksToDisplay = filter === "borrowed" ? borrowedBooksList : overdueBooks;
+  const handleReturnBook = (bookId, email) => {
+    if (window.confirm("Are you sure you want to return this book?")) {
+      dispatch(returnBorrowedBook(email, bookId));
+    }
+  };
 
   return (
     <main className="relative flex-1 p-6 pt-28">
@@ -71,14 +74,33 @@ const Catalog = () => {
             <thead>
               <tr className="bg-gray-200">
                 <th className="px-4 py-2 text-center">Username</th>
+                <th className="px-4 py-2 text-center">Email</th>
                 <th className="px-4 py-2 text-center">Due Date</th>
+                <th className="px-4 py-2 text-center">Status</th>
+                <th className="px-4 py-2 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
               {booksToDisplay.map((book) => (
                 <tr key={book._id} className="bg-gray-100">
-                  <td className="px-4 py-2 text-center">{book?.user.name}</td>
+                  <td className="px-4 py-2 text-center">{book?.user?.name || "N/A"}</td>
+                  <td className="px-4 py-2 text-center">{book?.user?.email || "N/A"}</td>
                   <td className="px-4 py-2 text-center">{formatDate(book.dueDate)}</td>
+                  <td
+                    className={`px-4 py-2 text-center font-semibold ${
+                      book.status === "Overdue" ? "text-red-500" : "text-green-500"
+                    }`}
+                  >
+                    {book.status}
+                  </td>
+                  <td className="px-4 py-2 text-center">
+                    <button
+                      className="px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600"
+                      onClick={() => handleReturnBook(book._id, book?.user?.email)}
+                    >
+                      Return Book
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
