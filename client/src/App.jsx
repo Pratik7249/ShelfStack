@@ -23,6 +23,7 @@ const App = () => {
       dispatch(fetchAllBooks());
       if(isAuthenticated && user?.role === "Admin") {
         dispatch(fetchAllUsers());
+        dispatch(fetchAllBooks()); // Added to fetch books as well when admin logs in.
       } 
   }, [isAuthenticated]);
   

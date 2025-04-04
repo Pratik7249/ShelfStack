@@ -23,9 +23,9 @@ const Home = () => {
     }
   }, [dispatch, isAuthenticated]);
 
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/login" />;
-  // }  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }  
   
   const renderComponent = () => {
     const isAdmin = user?.role === "Admin";
