@@ -1,5 +1,44 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { toggleAddBookPopup } from "./popUpSlice"; // ✅ Close popup after adding
+
+// ✅ Fetch all books from API
+export const fetchAllBooks = createAsyncThunk("book/fetchAll", async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.get("http://localhost:5000/api/v1/book/all", {
+      withCredentials: true,
+    });
+
+    if (!data?.books) throw new Error("Invalid response from server");
+    return data.books; // ✅ Return books data
+  } catch (err) {
+    console.error("Error Fetching Books:", err.response?.data || err.message);
+    return rejectWithValue(err.response?.data?.message || "Failed to fetch books");
+  }
+});
+
+// ✅ Add a book
+export const addBook = createAsyncThunk("book/add", async (book, { rejectWithValue, dispatch }) => {
+  try {
+    const { data } = await axios.post(
+      "http://localhost:5000/api/v1/book/admin/add",
+      book,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    dispatch(fetchAllBooks()); // ✅ Refresh book list after adding
+    dispatch(toggleAddBookPopup()); // ✅ Close popup after success
+    return data.book; // ✅ Return added book
+  } catch (err) {
+    console.error("❌ Error Adding Book:", err.response?.data || err.message);
+    return rejectWithValue(err.response?.data?.message || "Failed to add book");
+  }
+});
 
 const bookSlice = createSlice({
   name: "book",
@@ -10,73 +49,45 @@ const bookSlice = createSlice({
     message: null,
   },
   reducers: {
-    fetchBooksRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    fetchBooksSuccess(state, action) {
-      state.loading = false;
-      state.books = action.payload; // ✅ Stores books correctly
-    },
-    fetchBooksFailed(state, action) {
-      state.loading = false;
-      state.error = action.payload;
-      state.message = null;
-    },
-    addBookRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    addBookSuccess(state, action) {
-      state.loading = false;
-      state.books.push(action.payload); // ✅ Corrected issue
-      state.message = "Book added successfully!";
-    },
-    addBookFailed(state, action) {
-      state.loading = false;
-      state.error = action.payload;
-    },
     resetBookSlice(state) {
       state.error = null;
       state.message = null;
       state.loading = false;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // ✅ Fetch Books
+      .addCase(fetchAllBooks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllBooks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.books = action.payload;
+      })
+      .addCase(fetchAllBooks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // ✅ Add Book
+      .addCase(addBook.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addBook.fulfilled, (state, action) => {
+        state.loading = false;
+        state.books.push(action.payload);
+        state.message = "Book added successfully!";
+      })
+      .addCase(addBook.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
-export const fetchAllBooks = () => async (dispatch) => {
-  dispatch(bookSlice.actions.fetchBooksRequest());
-  try {
-    const res = await axios.get("http://localhost:5000/api/v1/book/all", { withCredentials: true });
-    dispatch(bookSlice.actions.fetchBooksSuccess(res.data.books)); // ✅ Corrected API response handling
-  } catch (err) {
-    dispatch(bookSlice.actions.fetchBooksFailed(err.response?.data?.message || "Failed to fetch books"));
-  }
-};
-
-export const addBook = (book) => async (dispatch) => {
-  dispatch(bookSlice.actions.addBookRequest());
-  try {
-    const res = await axios.post(
-      "http://localhost:5000/api/v1/book/admin/add",
-      book,
-      {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    dispatch(bookSlice.actions.addBookSuccess(res.data.book)); // ✅ Ensures the book is properly stored
-  } catch (err) {
-    dispatch(bookSlice.actions.addBookFailed(err.response?.data?.message || "Failed to add book"));
-  }
-};
-
-export const resetBookSlice = () => (dispatch) => {
-  dispatch(bookSlice.actions.resetBookSlice());
-}
-
+// ✅ Reset slice
+export const { resetBookSlice } = bookSlice.actions;
 export default bookSlice.reducer;

@@ -21,12 +21,15 @@ const BookManagement = () => {
   const { addBookPopup, readBookPopup, recordBookPopup } = useSelector((state) => state.popup);
   const { error: borrowSliceError, message: borrowSliceMessage } = useSelector((state) => state.borrow);
 
+  // ✅ Use a default empty object for readBook
   const [readBook, setReadBook] = useState({});
   const openReadPopup = (id) => {
-    const book = books.find((book) => book._id === id);
-    if (book) {
-      setReadBook(book);
-      dispatch(toggleReadBookPopup());
+    if (Array.isArray(books)) {
+      const book = books.find((book) => book._id === id);
+      if (book) {
+        setReadBook(book);
+        dispatch(toggleReadBookPopup());
+      }
     }
   };
 
@@ -55,7 +58,11 @@ const BookManagement = () => {
   const handleSearch = (e) => {
     setSearchedKeyword(e.target.value.toLowerCase());
   };
-  const searchedBooks = books.filter((book) => book.title.toLowerCase().includes(searchedKeyword));
+
+  // ✅ Ensure `books` is an array before filtering
+  const searchedBooks = Array.isArray(books)
+    ? books.filter((book) => book?.title?.toLowerCase().includes(searchedKeyword))
+    : [];
 
   return (
     <>
@@ -87,8 +94,8 @@ const BookManagement = () => {
           </div>
         </header>
 
-        {/* Table */}
-        {books && books.length > 0 ? (
+        {/* ✅ Table with Defensive Checks */}
+        {Array.isArray(books) && books.length > 0 ? (
           <div className="mt-6 overflow-auto bg-white rounded-md shadow-lg">
             <table className="min-w-full border-collapse">
               <thead>
@@ -134,6 +141,8 @@ const BookManagement = () => {
           <p className="text-center text-gray-500 mt-6">No books found.</p>
         )}
       </main>
+
+      {/* ✅ Popups */}
       {addBookPopup && <AddBookPopup />}
       {readBookPopup && <ReadBookPopup book={readBook} />}
       {recordBookPopup && <RecordBookPopup bookId={borrowBookId} />}

@@ -1,26 +1,27 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toggleRecordBookPopup } from "../store/slices/popUpSlice";
+import { recordBorrowedBook } from "../store/slices/borrowSlice";
 
-const RecordBookPopup = ({ onSave }) => {
+const RecordBookPopup = ({ bookId }) => {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState({
-    title: "",
-    author: "",
-    description: "",
-  });
+  const [email, setEmail] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleRecordBook = (e) => {
+    e.preventDefault();
 
-  const handleSubmit = () => {
-    if (!formData.title.trim() || !formData.author.trim()) {
-      alert("Title and Author are required!");
+    if (!email.trim()) {
+      alert("Please enter a valid email.");
       return;
     }
-    onSave(formData);
-    dispatch(toggleRecordBookPopup());
+
+    if (!bookId) {
+      alert("Error: Book ID is missing!");
+      console.error("Book ID is undefined:", bookId);
+      return;
+    }
+
+    dispatch(recordBorrowedBook(email, bookId)); // ✅ Pass both `email` & `bookId`
   };
 
   return (
@@ -33,50 +34,29 @@ const RecordBookPopup = ({ onSave }) => {
           &times;
         </button>
 
-        <h2 className="text-xl font-bold mb-4">Record New Book</h2>
+        <h2 className="text-xl font-bold mb-4">Record Book</h2>
 
-        <div className="mb-4">
-          <label className="font-semibold">Book Title</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 w-full"
-            placeholder="Enter book title"
-          />
-        </div>
+        <form onSubmit={handleRecordBook}>
+          <div className="mb-4">
+            <label className="font-semibold">User Email</label>
+            <input
+              type="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 w-full"
+              placeholder="Enter borrower's email"
+              required
+            />
+          </div>
 
-        <div className="mb-4">
-          <label className="font-semibold">Book Author</label>
-          <input
-            type="text"
-            name="author"
-            value={formData.author}
-            onChange={handleChange}
-            className="border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 w-full"
-            placeholder="Enter author name"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="font-semibold">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 w-full"
-            placeholder="Enter book description (optional)"
-            rows="3"
-          ></textarea>
-        </div>
-
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-        >
-          Save Book
-        </button>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            Record
+          </button>
+        </form>
       </div>
     </div>
   );
