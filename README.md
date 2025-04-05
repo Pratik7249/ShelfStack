@@ -1,40 +1,48 @@
-### 📚 SelfStack - Library Management System
+# 📚 SelfStack - Library Management System
 
 SelfStack is a robust and intuitive Library Management System built using the MERN stack (MongoDB, Express.js, React.js, Node.js) and Redux Toolkit. It enables users to browse, borrow, and return books, while administrators can manage users, books, and borrowing records via a powerful admin dashboard.
 
-### 🚀 Features
+## 🚀 Features
 
-## 👥 User Features
+### 👥 User Features
 
-✅ User Authentication – Secure login & registration using JWT.✅ Browse Books – Search and view books in an interactive catalog.✅ Borrow & Return Books – Borrow available books and return them with ease.✅ User Dashboard – Track borrowed books and due dates.✅ Role-Based Access Control – Ensure different access levels for users and admins.
+✅ User Authentication – Secure login & registration using JWT.
+✅ Browse Books – Search and view books in an interactive catalog.
+✅ Borrow & Return Books – Borrow available books and return them with ease.
+✅ User Dashboard – Track borrowed books and due dates.
+✅ Role-Based Access Control – Ensure different access levels for users and admins.
 
-## 🛠️ Admin Features
+### 🛠️ Admin Features
 
-✅ Admin Dashboard – Monitor total users, books, and borrowed records.✅ User & Book Management – Add, edit, or remove users and books.✅ Borrowing Records – Track books that have been borrowed and returned.✅ Authorization – Middleware to restrict access to admin-only routes.✅ Real-time Notifications – Toastify alerts for successful and failed actions.
+✅ Admin Dashboard – Monitor total users, books, and borrowed records.
+✅ User & Book Management – Add, edit, or remove users and books.
+✅ Borrowing Records – Track books that have been borrowed and returned.
+✅ Authorization – Middleware to restrict access to admin-only routes.
+✅ Real-time Notifications – Toastify alerts for successful and failed actions.
 
-### 🧱 Tech Stack
+## 🧱 Tech Stack
 
-## Frontend:
+### Frontend:
 
-React.js – For building the UI.
+-**React.js** – For building the UI.
 
-Redux Toolkit – For state management.
+-**Redux Toolkit** – For state management.
 
-React Router – For client-side navigation.
+-**React Router** – For client-side navigation.
 
-React Toastify – For notifications.
+-**React Toastify** – For notifications.
 
-Tailwind CSS – For responsive and modern styling.
+-**Tailwind CSS** – For responsive and modern styling.
 
-## Backend:
+### Backend:
 
-Node.js & Express.js – For REST API development.
+-**Node.js & Express.js** – For REST API development.
 
-MongoDB & Mongoose – For database management.
+-**MongoDB & Mongoose** – For database management.
 
-JWT (JSON Web Token) – For secure authentication.
+-**JWT (JSON Web Token)** – For secure authentication.
 
-Bcrypt.js – For password hashing.
+-**Bcrypt.js** – For password hashing.
 
 ### 📁 Project Structure
 ```
@@ -71,89 +79,94 @@ SelfStack/
 
 ## Prerequisites:
 
-Node.js (v16+)
+- Node.js (v16+)
 
-MongoDB (Local or Cloud Atlas)
+- MongoDB (Local or Cloud Atlas)
 
-Git (Latest version)
+- Git (Latest version)
 
-Code Editor (VS Code recommended)
+- Code Editor (VS Code recommended)
 
-🛠 Clone the Repository:
+## Steps:
 
-git clone https://github.com/your-username/selfstack.git
-cd selfstack
+🛠 **Clone the Repository**:
+      ```bash
+      git clone https://github.com/your-username/selfstack.git
+      ```
 
-## 🔧 Backend Setup:
+🔧 **Backend Setup**:
 
-Navigate to the server folder and install dependencies:
+- Navigate to the server folder and install dependencies:
 
-cd server
-npm install
+        ```bash
+        cd server
+        npm install
+        ```
+  
+🔧 **Frontend Setup**:
 
-Create a .env file inside the server directory and add the following:
+- Navigate to the client folder and install dependencies:
 
-PORT= 
-FRONTEND_URL=
-MONGO_URI=
-SMTP_HOST =
-SMTP_SERVICE =
-SMTP_PORT =
-SMTP_MAIL =
-SMTP_PASSWORD =
-JWT_SECRET=
-JWT_EXPIRE=
-COOKIE_EXPIRED= 
-CLOUDINARY_CLIENT_NAME =
-CLOUDINARY_CLIENT_API =
-CLOUDINARY_CLIENT_SECRET=-e98SmTXmenLk
+        ```bash
+        cd client
+        npm install
+        ```
 
-Start the backend server:
+**Create a .env file inside the server directory and add the following:**
+        ```env
+        PORT= 
+        FRONTEND_URL=
+        MONGO_URI=
+        SMTP_HOST =
+        SMTP_SERVICE =
+        SMTP_PORT =
+        SMTP_MAIL =
+        SMTP_PASSWORD =
+        JWT_SECRET=
+        JWT_EXPIRE=
+        COOKIE_EXPIRED= 
+        CLOUDINARY_CLIENT_NAME =
+        CLOUDINARY_CLIENT_API =
+        CLOUDINARY_CLIENT_SECRET=-e98SmTXmenLk
+        ```
 
-npm run dev
+**Start the backend server:**
+        ```bash
+        npm run dev
+        ```
 
-## 🎨 Frontend Setup:
-
-Navigate to the client folder and install dependencies:
-
-cd ../client
-npm install
-
-Start the frontend development server:
-
-npm run dev
 
 ## 🎮 Usage
 
-🔹 For Users:
+🔹 **For Users:**
 
-Register or log in.
+- Register or log in.
 
-Browse available books in the catalog.
+- Browse available books in the catalog.
 
-Borrow books (if available).
+- Borrow books (if available).
 
-Return borrowed books before the due date.
+- Return borrowed books before the due date.
 
-View borrowed book history in the dashboard.
+- View borrowed book history in the dashboard.
 
-🔹 For Admins:
+🔹 **For Admins:**
 
-Log in with admin credentials.
+- Log in with admin credentials.
 
-Access the admin dashboard.
+- Access the admin dashboard.
 
-Add, edit, or remove books and users.
+- Add, edit, or remove books and users.
 
-Monitor borrowed books and send return reminders.
+- Monitor borrowed books and send return reminders.
 
 ## 🔒 Authentication & Security
 
-JWT Authentication – Users & admins receive secure JSON Web Tokens upon login.
+- JWT Authentication – Users & admins receive secure JSON Web Tokens upon login.
 
-Password Hashing – Bcrypt.js is used to encrypt passwords.
+- Password Hashing – Bcrypt.js is used to encrypt passwords.
 
-Role-Based Access Control – Admins and users have different permissions.
+- Role-Based Access Control – Admins and users have different permissions.
 
 ## 📈 Future Roadmap
 
@@ -165,27 +178,23 @@ Role-Based Access Control – Admins and users have different permissions.
 
 🔹 Dark Mode – Theme switcher for better UI experience.
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! Follow these steps:
+We welcome contributions! To contribute:
+1. Fork the repository.
+2. Create a new branch:
+    ```bash
+    git checkout -b feature/your-feature
+    ```
+3. Commit your changes:
+    ```bash
+    git commit -m "Add your message here"
+    ```
+4. Push to your branch:
+    ```bash
+    git push origin feature/your-feature
+    ```
+5. Open a pull request on GitHub.
 
-Fork the repository
 
-Create a new branch:
-
-git checkout -b feature/your-feature-name
-
-Commit your changes:
-
-git commit -m "Add your feature"
-
-Push to your branch:
-
-git push origin feature/your-feature-name
-
-Open a Pull Request on GitHub.
-
-## 📄 License
-
-This project is licensed under the MIT License.
 
