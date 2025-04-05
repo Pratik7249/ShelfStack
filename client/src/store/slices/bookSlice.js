@@ -71,7 +71,6 @@ export const fetchAllBooks = () => async (dispatch) => {
       withCredentials: true,
     });
 
-    console.log("Fetched Books:", res.data);
     dispatch(bookSlice.actions.fetchBooksSuccess(res.data.books));
   } catch (err) {
     dispatch(
@@ -84,7 +83,6 @@ export const fetchAllBooks = () => async (dispatch) => {
 export const addBook = (book) => async (dispatch) => {
   dispatch(bookSlice.actions.addBookRequest());
 
-  console.log("Sending Book Data:", book); // 🛠️ Debugging - check payload
 
   try {
     const res = await axios.post("http://localhost:5000/api/v1/book/admin/add", book, {
@@ -94,7 +92,6 @@ export const addBook = (book) => async (dispatch) => {
       },
     });
 
-    console.log("Book Added Response:", res.data); // 🛠️ Debugging - check response
 
     dispatch(bookSlice.actions.addBookSuccess(res.data.book));
     dispatch(fetchAllBooks()); // ✅ Refresh book list after adding

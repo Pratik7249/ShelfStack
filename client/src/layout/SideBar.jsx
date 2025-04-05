@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import logo_with_title from "../assets/logo-with-title.png";
 import {
   RiAdminFill,
@@ -13,21 +13,34 @@ import {
 } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser, clearAuthState } from "../store/slices/authSlice";
-import { toggleAddNewAdminPopup, toggleSettingPopup } from "../store/slices/popupSlice"; // ✅ Import action
+import { toggleAddNewAdminPopup, toggleSettingPopup } from "../store/slices/popUpSlice";
 import { toast } from "react-toastify";
-import AddNewAdmin from "./../popups/AddNewAdmin"; // ✅ Correct Import
+import AddNewAdmin from "../popups/AddNewAdmin";
 import SettingPopup from "../popups/SettingPopup";
 
-const SideBar = ({ isSideBarOpen, setIsSideBarOpen, setSelectedComponent, settingPopup }) => {
+// Reusable Sidebar Item Component
+const SidebarItem = ({ icon: Icon, label, onClick, isActive }) => (
+  <button
+    className={`flex items-center w-full p-2 rounded-md hover:bg-gray-800 transition ${
+      isActive ? "bg-gray-700" : ""
+    }`}
+    onClick={onClick}
+  >
+    <Icon className="h-5 w-5 mr-2" />
+    <span>{label}</span>
+  </button>
+);
+
+const SideBar = ({ isSideBarOpen, setIsSideBarOpen, setSelectedComponent, selectedComponent, settingPopup }) => {
   const dispatch = useDispatch();
-  const addNewAdminPopup = useSelector((state) => state.popup.addNewAdminPopup); // ✅ Correct Selector
+  const addNewAdminPopup = useSelector((state) => state.popup.addNewAdminPopup);
   const { isAuthenticated, loading, error, message, user } = useSelector((state) => state.auth);
 
   const isAdmin = user?.role === "Admin";
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logoutUser());
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     if (error) {
@@ -54,7 +67,6 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen, setSelectedComponent, settin
         {/* Sidebar Header */}
         <div className="px-6 py-4 my-8 flex justify-between items-center">
           <img src={logo_with_title} alt="Logo" className="h-10" />
-          {/* Close Button (Only for Mobile) */}
           <button className="md:hidden" onClick={() => setIsSideBarOpen(false)}>
             <RiCloseLine className="h-6 w-6 text-white" />
           </button>
@@ -62,46 +74,56 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen, setSelectedComponent, settin
 
         {/* Sidebar Navigation */}
         <div className="p-4 flex-1 space-y-3">
-          <button className="flex items-center w-full p-2 rounded-md hover:bg-gray-800" onClick={() => setSelectedComponent("Dashboard")}>
-            <RiDashboardLine className="h-5 w-5 mr-2" />
-            <span>Dashboard</span>
-          </button>
+          <SidebarItem
+            icon={RiDashboardLine}
+            label="Dashboard"
+            isActive={selectedComponent === "Dashboard"}
+            onClick={() => setSelectedComponent("Dashboard")}
+          />
 
-          <button className="flex items-center w-full p-2 rounded-md hover:bg-gray-800" onClick={() => setSelectedComponent("Books")}>
-            <RiBookOpenLine className="h-5 w-5 mr-2" />
-            <span>Books</span>
-          </button>
+          <SidebarItem
+            icon={RiBookOpenLine}
+            label="Books"
+            isActive={selectedComponent === "Books"}
+            onClick={() => setSelectedComponent("Books")}
+          />
 
           {isAdmin && (
             <>
-              <button className="flex items-center w-full p-2 rounded-md hover:bg-gray-800" onClick={() => setSelectedComponent("Catalog")}>
-                <RiBookMarkedLine className="h-5 w-5 mr-2" />
-                <span>Catalog</span>
-              </button>
-
-              <button className="flex items-center w-full p-2 rounded-md hover:bg-gray-800" onClick={() => setSelectedComponent("Users")}>
-                <RiUser2Fill className="h-5 w-5 mr-2" />
-                <span>Users</span>
-              </button>
-
-              <button className="flex items-center w-full p-2 rounded-md hover:bg-gray-800" onClick={() => dispatch(toggleAddNewAdminPopup())}>
-                <RiAdminFill className="h-5 w-5 mr-2" />
-                <span>Add New Admin</span>
-              </button>
+              <SidebarItem
+                icon={RiBookMarkedLine}
+                label="Catalog"
+                isActive={selectedComponent === "Catalog"}
+                onClick={() => setSelectedComponent("Catalog")}
+              />
+              <SidebarItem
+                icon={RiUser2Fill}
+                label="Users"
+                isActive={selectedComponent === "Users"}
+                onClick={() => setSelectedComponent("Users")}
+              />
+              <SidebarItem
+                icon={RiAdminFill}
+                label="Add New Admin"
+                onClick={() => dispatch(toggleAddNewAdminPopup())}
+              />
             </>
           )}
 
           {isAuthenticated && user?.role === "User" && (
-            <button className="flex items-center w-full p-2 rounded-md hover:bg-gray-800" onClick={() => setSelectedComponent("My Borrowed Books")}>
-              <RiBook2Fill className="h-5 w-5 mr-2" />
-              <span>My Borrowed Books</span>
-            </button>
+            <SidebarItem
+              icon={RiBook2Fill}
+              label="My Borrowed Books"
+              isActive={selectedComponent === "My Borrowed Books"}
+              onClick={() => setSelectedComponent("My Borrowed Books")}
+            />
           )}
 
-          <button className="flex items-center w-full p-2 rounded-md hover:bg-gray-800" onClick={()=>dispatch(toggleSettingPopup())}>
-            <RiSettings4Line className="h-5 w-5 mr-2" />
-            <span>Update Credentials</span>
-          </button>
+          <SidebarItem
+            icon={RiSettings4Line}
+            label="Update Credentials"
+            onClick={() => dispatch(toggleSettingPopup())}
+          />
         </div>
 
         {/* Logout Button */}
@@ -113,7 +135,7 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen, setSelectedComponent, settin
         </div>
       </aside>
 
-      {/* Add New Admin Popup */}
+      {/* Popups */}
       {addNewAdminPopup && <AddNewAdmin />}
       {settingPopup && <SettingPopup />}
     </>

@@ -65,7 +65,6 @@ export const recordBorrowedBooks = catchAsyncErrors(async (req, res, next) => {
     });
 
     await borrow.save();
-    console.log("Borrow record saved:", borrow);
   } catch (error) {
     console.error("Error saving borrow record:", error);
     return next(new ErrorHandler("Failed to save borrow record", 500));

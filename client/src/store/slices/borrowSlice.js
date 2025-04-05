@@ -1,15 +1,19 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toggleRecordBookPopup } from "./popUpSlice";
 
+// Initial state
+const initialState = {
+  borrowedBooks: [],
+  loading: false,
+  error: null,
+  message: null,
+};
+
+// Create slice
 const borrowSlice = createSlice({
   name: "borrow",
-  initialState: {
-    borrowedBooks: [],
-    loading: false,
-    error: null,
-    message: null,
-  },
+  initialState,
   reducers: {
     fetchBorrowedBooksRequest(state) {
       state.loading = true;
@@ -62,11 +66,11 @@ const borrowSlice = createSlice({
   },
 });
 
-// ✅ Role-based book fetching
+// Thunk: Fetch borrowed books based on role
 export const fetchBorrowedBooks = (role) => async (dispatch) => {
   dispatch(borrowSlice.actions.fetchBorrowedBooksRequest());
-  
-  let url =
+
+  const url =
     role === "admin"
       ? "http://localhost:5000/api/v1/borrow/borrowed-books-by-users"
       : "http://localhost:5000/api/v1/borrow/my-borrowed-books";
@@ -83,7 +87,7 @@ export const fetchBorrowedBooks = (role) => async (dispatch) => {
   }
 };
 
-// ✅ Ensure this function is defined
+// Thunk: Fetch only logged-in user's borrowed books
 export const fetchUserBorrowedBooks = () => async (dispatch) => {
   dispatch(borrowSlice.actions.fetchBorrowedBooksRequest());
 
@@ -91,7 +95,6 @@ export const fetchUserBorrowedBooks = () => async (dispatch) => {
     const res = await axios.get("http://localhost:5000/api/v1/borrow/my-borrowed-books", {
       withCredentials: true,
     });
-
     dispatch(borrowSlice.actions.fetchBorrowedBooksSuccess(res.data.borrowedBooks));
   } catch (error) {
     dispatch(
@@ -102,8 +105,7 @@ export const fetchUserBorrowedBooks = () => async (dispatch) => {
   }
 };
 
-
-// ✅ Ensure this function is defined
+// Thunk: Fetch all borrowed books (admin only)
 export const fetchAllBorrowedBooks = () => async (dispatch) => {
   dispatch(borrowSlice.actions.fetchBorrowedBooksRequest());
 
@@ -111,11 +113,8 @@ export const fetchAllBorrowedBooks = () => async (dispatch) => {
     const res = await axios.get("http://localhost:5000/api/v1/borrow/borrowed-books-by-users", {
       withCredentials: true,
     });
-
-    console.log("Fetched Borrowed Books:", res.data); // Debugging
     dispatch(borrowSlice.actions.fetchBorrowedBooksSuccess(res.data.borrowedBooks));
   } catch (error) {
-    console.error("Error Fetching Books:", error.response?.data || error.message);
     dispatch(
       borrowSlice.actions.fetchBorrowedBooksFailed(
         error.response?.data?.message || "Failed to fetch borrowed books"
@@ -124,9 +123,8 @@ export const fetchAllBorrowedBooks = () => async (dispatch) => {
   }
 };
 
-
-// ✅ Record a borrowed book
-export const recordBorrowedBook = (email, id) => async (dispatch) => {
+// Thunk: Record a borrowed book
+export const recordBorrowedBook = ({ email, id }) => async (dispatch) => {
   dispatch(borrowSlice.actions.recordBookRequest());
   try {
     const res = await axios.post(
@@ -145,26 +143,29 @@ export const recordBorrowedBook = (email, id) => async (dispatch) => {
   }
 };
 
-// ✅ Return a borrowed book
-export const returnBorrowedBook = (email, id) => async (dispatch) => {
-  dispatch(borrowSlice.actions.returnBookRequest());
-  try {
-    const res = await axios.put(
-      `http://localhost:5000/api/v1/borrow/return-borrowed-book/${id}`,
-      { email },
-      { withCredentials: true }
-    );
-    dispatch(borrowSlice.actions.returnBookSuccess(res.data.message));
-  } catch (error) {
-    dispatch(
-      borrowSlice.actions.returnBookFailed(
-        error.response?.data?.message || "Failed to return borrowed book"
-      )
-    );
+// ✅ Thunk: Return a borrowed book (fixed)
+export const returnBorrowedBook = createAsyncThunk(
+  "borrow/returnBorrowedBook",
+  async ({ bookId, email }, thunkAPI) => {
+    try {
+      const { data } = await axios.put(
+        `http://localhost:5000/api/v1/borrow/return-borrowed-book/${bookId}`,
+        { email },
+        { withCredentials: true }
+      );
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to return book"
+      );
+    }
   }
-};
+);
 
-export const resetBorrowSlice = () => async (dispatch) => {
+// Action: Reset slice state
+export const resetBorrowSlice = () => (dispatch) => {
   dispatch(borrowSlice.actions.resetBorrowSlice());
 };
+
+// Export reducer
 export default borrowSlice.reducer;

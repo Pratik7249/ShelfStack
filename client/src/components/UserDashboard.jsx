@@ -31,30 +31,27 @@ ChartJS.register(
 
 const UserDashboard = () => {
   const dispatch = useDispatch();
-
-  // Redux state
-  const { issettingPopup } = useSelector((state) => state.popup); // ✅ kept as you confirmed
+  const { user } = useSelector((state) => state.auth); // Assuming you store user info in auth
   const { borrowedBooks: userBorrowedBooks, loading, error } = useSelector((state) => state.borrow);
 
   const [totalBorrowedBooks, setTotalBorrowedBooks] = useState(0);
   const [totalReturnedBooks, setTotalReturnedBooks] = useState(0);
+  const [overdueBooks, setOverdueBooks] = useState(0);
 
-  // Fetch books
   useEffect(() => {
     dispatch(fetchUserBorrowedBooks());
   }, [dispatch]);
 
-  // Log for debugging
-  useEffect(() => {
-    console.log("📚 Borrowed Books from Redux:", userBorrowedBooks);
-  }, [userBorrowedBooks]);
-
-  // Count logic
   useEffect(() => {
     const borrowed = userBorrowedBooks?.filter((book) => !book.returned) || [];
     const returned = userBorrowedBooks?.filter((book) => book.returned) || [];
+
+    const now = new Date();
+    const overdue = borrowed.filter((book) => new Date(book.dueDate) < now);
+
     setTotalBorrowedBooks(borrowed.length);
     setTotalReturnedBooks(returned.length);
+    setOverdueBooks(overdue.length);
   }, [userBorrowedBooks]);
 
   const data = {
@@ -65,48 +62,100 @@ const UserDashboard = () => {
         data: [totalBorrowedBooks, totalReturnedBooks],
         backgroundColor: ["rgba(75, 192, 192, 0.8)", "rgba(255, 99, 132, 0.8)"],
         hoverBackgroundColor: ["rgba(75, 192, 192, 1)", "rgba(255, 99, 132, 1)"],
-        hoverOffset: 4,
+        hoverOffset: 6,
+        borderWidth: 1,
       },
     ],
   };
 
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  
+
+  const recentActivity = userBorrowedBooks?.slice(0, 5) || [];
+
   return (
-    <main className="relative flex-1 p-6 pt-28">
+    <main className="relative flex-1 p-6 pt-28 bg-gray-100 min-h-screen">
       <Header />
 
-      <div className="flex flex-col-reverse xl:flex-row gap-6">
-        {/* Left Section */}
-        <div className="flex-[4] flex flex-col gap-7 lg:gap-7 lg:py-5 justify-between xl:min-h-[85.5vh]">
-          <div className="flex flex-col gap-7">
-            <div className="bg-white p-5 rounded-lg transition hover:shadow-inner duration-300 flex items-center gap-4">
-              <div className="w-2 bg-black h-20" />
-              <div className="h-20 flex items-center justify-center bg-gray-200 p-3 rounded">
-                <img src={bookIcon} alt="book-icon" className="w-8 h-8" />
-              </div>
-              <p className="text-lg font-medium">Your Borrowed Book List</p>
-            </div>
-          </div>
-        </div>
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold">
+          Welcome back{user?.name ? `, ${user.name}` : ""} 👋
+        </h2>
+        <p className="text-gray-500">{formatDate(new Date())}</p>
+      </div>
 
-        {/* Right Section - Chart */}
-        <div className="flex-[2] bg-white rounded-lg p-6 shadow-md">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <StatCard label="Currently Borrowed" value={totalBorrowedBooks} color="bg-blue-500" />
+        <StatCard label="Returned Books" value={totalReturnedBooks} color="bg-green-500" />
+        <StatCard label="Overdue Books" value={overdueBooks} color="bg-red-500" />
+        <StatCard label="Total Records" value={userBorrowedBooks?.length || 0} color="bg-purple-500" />
+      </div>
+
+      <div className="flex flex-col xl:flex-row gap-6">
+        <div className="flex-[2] bg-white rounded-lg p-6 shadow-md h-fit">
           <h3 className="text-xl font-semibold mb-4 text-center">Borrowing Summary</h3>
-
-          <div className="w-full h-64 flex items-center justify-center border border-gray-200 rounded">
+          <div className="w-full h-[300px] flex items-center justify-center">
             {loading ? (
               <p className="text-sm text-gray-400">Loading chart...</p>
             ) : error ? (
               <p className="text-sm text-red-500">Error: {error}</p>
             ) : totalBorrowedBooks > 0 || totalReturnedBooks > 0 ? (
-              <Pie data={data} />
+              <div className="w-full h-full">
+                <Pie data={data} options={{ maintainAspectRatio: false }} />
+              </div>
             ) : (
               <p className="text-sm text-gray-500">No borrowing data available yet.</p>
             )}
           </div>
         </div>
+
+        <div className="flex-[3] bg-white rounded-lg p-6 shadow-md h-fit">
+          <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
+          {recentActivity.length > 0 ? (
+            <ul className="space-y-2">
+              {recentActivity.map((book, idx) => (
+                <li
+                  key={book.bookId + idx}
+                  className="p-3 bg-gray-50 border rounded flex justify-between items-center"
+                >
+                  <div>
+                    <p className="font-medium">{book.bookTitle || "Untitled"}</p>
+                    <p className="text-sm text-gray-500">
+                      Borrowed: {formatDate(book.borrowedDate)}{" "}
+                      | Due: {formatDate(book.dueDate)}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                      book.returned ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {book.returned ? "Returned" : "Not Returned"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500">No recent activity found.</p>
+          )}
+        </div>
       </div>
     </main>
   );
 };
+
+// ✅ Mini Card Component
+const StatCard = ({ label, value, color }) => (
+  <div className={`p-4 rounded-lg shadow text-white ${color}`}>
+    <p className="text-sm">{label}</p>
+    <h2 className="text-2xl font-bold">{value}</h2>
+  </div>
+);
 
 export default UserDashboard;

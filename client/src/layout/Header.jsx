@@ -56,7 +56,6 @@ const Header = () => {
             alt="Setting Icon"
             className="w-8 h-8 cursor-pointer"
             onClick={() => {
-              console.log("Setting icon clicked! Dispatching toggleSettingPopup...");
               dispatch(toggleSettingPopup());
             }}
           />

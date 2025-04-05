@@ -6,11 +6,9 @@ class ErrorHandler extends Error {
 }
 
 export const errorMiddleware = (err, req, res, next) => {
-  console.log("Error middleware is working! 500 error occurred. Error: ", err);
   err.message = err.message || "Internal Server Error";
   err.statusCode = err.statusCode || 500;
 
-  console.log("Error: ", err);
 
   // Handle duplicate key error (MongoDB)
   if (err.code === 11000) {

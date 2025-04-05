@@ -1,28 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 import { toggleRecordBookPopup } from "../store/slices/popUpSlice";
 import { recordBorrowedBook } from "../store/slices/borrowSlice";
 
 const RecordBookPopup = ({ bookId }) => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleRecordBook = (e) => {
     e.preventDefault();
 
     if (!email.trim()) {
-      alert("Please enter a valid email.");
+      toast.error("Please enter a valid email.");
       return;
     }
 
     if (!bookId) {
-      alert("Error: Book ID is missing!");
-      console.error("Book ID is undefined:", bookId);
+      toast.error("Error: Book ID is missing!");
       return;
     }
 
-    dispatch(recordBorrowedBook(email, bookId)); // ✅ Pass both `email` & `bookId`
+    setLoading(true);
+    dispatch(recordBorrowedBook(email, bookId))
+      .unwrap()
+      .then(() => {
+        toast.success("Book successfully recorded for user!");
+        dispatch(toggleRecordBookPopup());
+      })
+      .catch((error) => {
+        toast.error(error?.message || "Failed to record book.");
+      })
+      .finally(() => setLoading(false));
   };
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        dispatch(toggleRecordBookPopup());
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [dispatch]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex items-center justify-center z-50">
@@ -52,9 +73,12 @@ const RecordBookPopup = ({ bookId }) => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`w-full ${
+              loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+            } text-white py-2 rounded-md transition`}
           >
-            Record
+            {loading ? "Recording..." : "Record"}
           </button>
         </form>
       </div>

@@ -6,7 +6,6 @@ const ReadBookPopup = ({ book }) => {
   const dispatch = useDispatch();
 
   if (!book || !book.title) {
-    console.log("Book data is missing:", book);
     return null;
   }
 

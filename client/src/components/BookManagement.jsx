@@ -21,23 +21,9 @@ const BookManagement = () => {
   const { addBookPopup, readBookPopup, recordBookPopup } = useSelector((state) => state.popup);
   const { error: borrowSliceError, message: borrowSliceMessage } = useSelector((state) => state.borrow);
 
-  // ✅ Use a default empty object for readBook
   const [readBook, setReadBook] = useState({});
-  const openReadPopup = (id) => {
-    if (Array.isArray(books)) {
-      const book = books.find((book) => book._id === id);
-      if (book) {
-        setReadBook(book);
-        dispatch(toggleReadBookPopup());
-      }
-    }
-  };
-
   const [borrowBookId, setBorrowBookId] = useState("");
-  const openRecordBookPopup = (bookId) => {
-    setBorrowBookId(bookId);
-    dispatch(toggleRecordBookPopup());
-  };
+  const [searchedKeyword, setSearchedKeyword] = useState("");
 
   useEffect(() => {
     if (message || borrowSliceMessage) {
@@ -54,12 +40,25 @@ const BookManagement = () => {
     }
   }, [dispatch, message, error, borrowSliceMessage, borrowSliceError]);
 
-  const [searchedKeyword, setSearchedKeyword] = useState("");
+  const openReadPopup = (id) => {
+    if (Array.isArray(books)) {
+      const book = books.find((book) => book._id === id);
+      if (book) {
+        setReadBook(book);
+        dispatch(toggleReadBookPopup());
+      }
+    }
+  };
+
+  const openRecordBookPopup = (bookId) => {
+    setBorrowBookId(bookId);
+    dispatch(toggleRecordBookPopup());
+  };
+
   const handleSearch = (e) => {
     setSearchedKeyword(e.target.value.toLowerCase());
   };
 
-  // ✅ Ensure `books` is an array before filtering
   const searchedBooks = Array.isArray(books)
     ? books.filter((book) => book?.title?.toLowerCase().includes(searchedKeyword))
     : [];
@@ -94,7 +93,6 @@ const BookManagement = () => {
           </div>
         </header>
 
-        {/* ✅ Table with Defensive Checks */}
         {Array.isArray(books) && books.length > 0 ? (
           <div className="mt-6 overflow-auto bg-white rounded-md shadow-lg">
             <table className="min-w-full border-collapse">
@@ -108,7 +106,7 @@ const BookManagement = () => {
                   )}
                   <th className="px-4 py-2 text-center">Price</th>
                   <th className="px-4 py-2 text-center">Availability</th>
-                  {isAuthenticated && user?.role === "Admin" && (
+                  {isAuthenticated && (
                     <th className="px-4 py-2 text-center">Actions</th>
                   )}
                 </tr>
@@ -126,11 +124,30 @@ const BookManagement = () => {
                     <td className="px-4 py-2 text-center">
                       {book.quantity > 0 ? "Available" : "Out of Stock"}
                     </td>
-                    {isAuthenticated && user?.role === "Admin" && (
+
+                    {isAuthenticated && (
                       <td className="px-4 py-2 text-center flex justify-center gap-2">
-                        <BookA className="cursor-pointer" onClick={() => openReadPopup(book._id)} />
-                        <NotebookPen className="cursor-pointer" onClick={() => openRecordBookPopup(book._id)} />
-                      </td>
+                      {user?.role === "Admin" && (
+                        <>
+                          <BookA className="cursor-pointer" onClick={() => openReadPopup(book._id)} />
+                          <NotebookPen className="cursor-pointer" onClick={() => openRecordBookPopup(book._id)} />
+                        </>
+                      )}
+                    
+                      {user?.role !== "Admin" && (
+                        book.quantity > 0 ? (
+                          <button
+                            onClick={() => openRecordBookPopup(book._id)}
+                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                          >
+                            Borrow
+                          </button>
+                        ) : (
+                          <span className="text-gray-400 text-sm">Not Available</span>
+                        )
+                      )}
+                    </td>
+                    
                     )}
                   </tr>
                 ))}
