@@ -113,7 +113,7 @@ SelfStack/
         ```
 
 **Create a .env file inside the server directory and add the following:**
-        ```env
+        ```bash
         PORT= 
         FRONTEND_URL=
         MONGO_URI=
