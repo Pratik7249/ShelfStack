@@ -89,51 +89,50 @@ SelfStack/
 
 ## Steps:
 
-🛠 **Clone the Repository**:
-      ```bash
-      git clone https://github.com/your-username/selfstack.git
-      ```
+🛠 **Clone the repository**:
+    ```bash
+    git clone https://github.com/Pratik7249/OG-Services.git
+    ```
 
 🔧 **Backend Setup**:
 
 - Navigate to the server folder and install dependencies:
 
-        ```bash
-        cd server
-        npm install
-        ```
+    ```bash
+    git clone https://github.com/Pratik7249/OG-Services.git
+    ```
   
 🔧 **Frontend Setup**:
 
 - Navigate to the client folder and install dependencies:
 
-        ```bash
-        cd client
-        npm install
-        ```
+     ```bash
+     cd client
+     npm install
+     ```
 
 **Create a .env file inside the server directory and add the following:**
-        ```bash
-        PORT= 
-        FRONTEND_URL=
-        MONGO_URI=
-        SMTP_HOST =
-        SMTP_SERVICE =
-        SMTP_PORT =
-        SMTP_MAIL =
-        SMTP_PASSWORD =
-        JWT_SECRET=
-        JWT_EXPIRE=
-        COOKIE_EXPIRED= 
-        CLOUDINARY_CLIENT_NAME =
-        CLOUDINARY_CLIENT_API =
-        CLOUDINARY_CLIENT_SECRET=-e98SmTXmenLk
-        ```
+  ```bash
+      PORT= 
+      FRONTEND_URL=
+      MONGO_URI=
+      SMTP_HOST =
+      SMTP_SERVICE =
+      SMTP_PORT =
+      SMTP_MAIL =
+      SMTP_PASSWORD =
+      JWT_SECRET=
+      JWT_EXPIRE=
+      COOKIE_EXPIRED= 
+      CLOUDINARY_CLIENT_NAME =
+      CLOUDINARY_CLIENT_API =
+      CLOUDINARY_CLIENT_SECRET=-e98SmTXmenLk
+  ```
 
 **Start the backend server:**
-        ```bash
-        npm run dev
-        ```
+```bash
+      npm run dev
+   ```
 
 
 ## 🎮 Usage
